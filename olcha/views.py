@@ -4,14 +4,25 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from olcha.models import Category,Group
-from olcha.serializers import CategoryModelSerializer,GroupModelSerializer
+from olcha.models import Category,Group,Product
+from olcha.serializers import GroupModelSerializer,CategoryModelSerializer,ProductModelSerializer
 from rest_framework import generics
 
 
 
 # Create your views here.
 
+"""  1 st  and 2 nd version  Barcha ma'lumotlarni bitta viewda chiqarish uchun """
+
+class CategoryList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategoryModelSerializer
+    permission_classes = [AllowAny]
+
+
+
+""" 3rd version Barcha malumotlarni aloxida aloxida viewlarda ciqarish uchun """
+"""
 class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.all()
@@ -96,4 +107,28 @@ class GroupDetailView(APIView):
         group = self.get_object(slug=slug)
         group.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class ProductListView(APIView):
+    def get(self, request):
+        products = Product.objects.all()
+        serializers = ProductModelSerializer(instance=products, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
+    serializer_class = ProductModelSerializer
+    def post(self, request):
+        serializers = ProductModelSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
+        return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+"""
+
+
+
+
+
+
+
+
 

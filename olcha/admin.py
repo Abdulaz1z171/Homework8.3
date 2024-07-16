@@ -3,7 +3,7 @@ from olcha.models import  Product,Category,Group,Image
 
 # Register your models here.
 
-admin.site.register(Product)
+
 
 
 admin.site.register(Image)
@@ -20,3 +20,9 @@ class GroupModelAdmin(admin.ModelAdmin):
     
     list_display = ['group_name','slug']
     prepopulated_fields = {'slug':('group_name',)}
+
+@admin.register(Product)
+class ProductModelAdmin(admin.ModelAdmin):
+    
+    list_display = ['product_name','slug']
+    prepopulated_fields = {'slug':('product_name',)}
