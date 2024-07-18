@@ -4,8 +4,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from olcha.models import Category,Group,Product
-from olcha.serializers import GroupModelSerializer,CategoryModelSerializer,ProductModelSerializer
+from django.contrib.auth.models import User
+from olcha.models import Category,Group,Product,Comment
+from olcha.serializers import ProductModelSerializer,CommentModelSerializer,UserModelSerializer
 from rest_framework import generics
 
 
@@ -14,12 +15,37 @@ from rest_framework import generics
 
 """  1 st  and 2 nd version  Barcha ma'lumotlarni bitta viewda chiqarish uchun """
 
-class CategoryList(generics.ListAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategoryModelSerializer
-    permission_classes = [AllowAny]
+# class CategoryList(generics.ListAPIView):
+#     queryset = Category.objects.all()
+#     serializer_class = CategoryModelSerializer
+#     permission_classes = [AllowAny]
 
 
+class CategoryListView(APIView):
+    def get(self,request):
+        categories = Category.objects.all()
+        serializers = CategoryModelSerializer(categories, many=True, context={'request': request})
+        return Response(serializers.data, status=status.HTTP_200_OK)
+    
+
+class ProductListView(APIView):
+    def get(self,request):
+        products = Product.objects.all()
+        serializers = ProductModelSerializer(products,many=True,context = {'request':request})
+        return Response(serializers.data,status=status.HTTP_200_OK)
+
+
+class CommentListView(APIView):
+    def get(self,request):
+        comments = Comment.objects.all()
+        serializers = CommentModelSerializer(comments,many = True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
+
+class UserListView(APIView):
+    def get(self,request):
+        users = User.objects.all()
+        serializers = UserModelSerializer(users,many=True,context = {'request':request})
+        return Response(serializers.data,status = status.HTTP_200_OK)
 
 """ 3rd version Barcha malumotlarni aloxida aloxida viewlarda ciqarish uchun """
 """

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -27,6 +28,10 @@ class Category(BaseModel):
 
     def __str__(self):
         return self.category_name
+    
+    class Meta:
+        verbose_name_plural = 'Categories'
+        db_table = 'categories'
 
 
 class Group(BaseModel):
@@ -42,6 +47,9 @@ class Group(BaseModel):
 
     def __str__(self):
         return self.group_name
+
+    class Meta:
+        db_table = 'groups'
 
 
 class Product(BaseModel):
@@ -61,6 +69,20 @@ class Product(BaseModel):
     discount = models.IntegerField(default=0)
     slug = models.SlugField(null=True, blank=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='products')
+    users_like = models.ManyToManyField(User,related_name='likes',blank = True,db_table='users_like')
+    
+    
+    
+    
+    def get_attributes(self) -> list:
+        product_attributes = ProductAttribute.objects.filter(product=self)
+        attributes = []
+        for pa in product_attributes:
+            attributes.append({
+                'attribute_name': pa.attribute.attribute_name,
+                'attribute_value': pa.attribute_value.attribute_value
+            })
+        return attributes
 
     @property
     def discounted_price(self):
@@ -82,6 +104,28 @@ class Product(BaseModel):
     def __str__(self):
         return self.product_name
 
+    class Meta:
+        db_table = 'products'
+
+
+class Attribute(models.Model):
+    attribute_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.attribute_name
+    
+    
+class AttributeValue(models.Model):
+    attribute_value = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.attribute_value
+    
+class ProductAttribute(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE)
+    attribute_value = models.ForeignKey(AttributeValue, on_delete=models.CASCADE)
+
 
 class Image(models.Model):
     image = models.ImageField(upload_to='images/')
@@ -91,3 +135,21 @@ class Image(models.Model):
 
     is_primary = models.BooleanField(default=False)
 
+    class Meta:
+        db_table = 'images'
+
+
+class Comment(models.Model):
+    class RatingChoices(models.IntegerChoices):
+        ZERO = 0
+        ONE = 1
+        TWO = 2
+        THREE = 3
+        FOUR = 4
+        FIVE = 5
+
+    message = models.TextField()
+    rating = models.IntegerField(choices = RatingChoices.choices,default=RatingChoices.ZERO.value,null=True,blank=True)
+    file = models.FileField(upload_to='comments/',null=True,blank=True)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='comments')
+    user = models.ForeignKey(User,on_delete=models.CASCADE)

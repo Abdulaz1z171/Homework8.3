@@ -6,7 +6,10 @@ from olcha import views
 
 urlpatterns = [
     # 1 st and 2nd version Barcha malumotlarni bitta viewda ciqarish uchun
-    path('category-list/',views.CategoryList.as_view(), name = 'category_list'),
+    path('category-list/',views.CategoryListView.as_view(), name = 'category_list'),
+    path('products/',views.ProductListView.as_view(),name = 'products'),
+    path('comments/',views.CommentListView.as_view(),name = 'comments'),
+    path('users/',views.UserListView.as_view(), name = 'users')
     
 
     #  3rd version                       xar bir categoriyani aloxida aloxida viewlarda chiqarish  
