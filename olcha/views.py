@@ -6,8 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from olcha.models import Category,Group,Product,Comment
-from olcha.serializers import ProductModelSerializer,CommentModelSerializer,UserModelSerializer
+from olcha.serializers import ProductModelSerializer,CommentModelSerializer,UserModelSerializer,UserRegister
 from rest_framework import generics
+from rest_framework.authtoken.models import Token
 
 
 
@@ -46,6 +47,27 @@ class UserListView(APIView):
         users = User.objects.all()
         serializers = UserModelSerializer(users,many=True,context = {'request':request})
         return Response(serializers.data,status = status.HTTP_200_OK)
+
+
+
+class register(APIView):
+    def post(self,request,format = None):
+        serializer = UserRegister(data = request.data)
+        data = {}
+        if serializer.is_valid():
+            account = serializer.save()
+            data['response'] = 'registered'
+            data['username'] = account.username
+            data['email'] = account.email
+            token,create  = Token.objects.get_or_create(user =account)
+            data['token'] = token.key
+        else:
+            data = serializer.errors
+        return Response(data)
+  
+
+
+
 
 """ 3rd version Barcha malumotlarni aloxida aloxida viewlarda ciqarish uchun """
 """

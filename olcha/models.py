@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-
 # Create your models here.
 
 from django.utils.text import slugify
@@ -153,3 +152,5 @@ class Comment(models.Model):
     file = models.FileField(upload_to='comments/',null=True,blank=True)
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='comments')
     user = models.ForeignKey(User,on_delete=models.CASCADE)
+
+

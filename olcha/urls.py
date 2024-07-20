@@ -9,7 +9,8 @@ urlpatterns = [
     path('category-list/',views.CategoryListView.as_view(), name = 'category_list'),
     path('products/',views.ProductListView.as_view(),name = 'products'),
     path('comments/',views.CommentListView.as_view(),name = 'comments'),
-    path('users/',views.UserListView.as_view(), name = 'users')
+    path('users/',views.UserListView.as_view(), name = 'users'),
+    path('register/',views.register.as_view(), name = 'register')
     
 
     #  3rd version                       xar bir categoriyani aloxida aloxida viewlarda chiqarish  

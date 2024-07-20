@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.db.models.functions import Round
+from django.db.models import Avg
 
-from olcha.models import Category,Group,Product,Image,Comment
+from olcha.models import Category,Group,Product,Image,Comment,ProductAttribute
 
 """ First version,API dagi category da hamma ma'lumotlar birdan ciqadi group va
  undagi product lar bn.Bunda faqat serializerda logika qilindi va malumotlarni bitta viewda ciqarildi """
@@ -175,6 +177,56 @@ class ProductModelSerializer(serializers.ModelSerializer):
     comments = CommentModelSerializer(many = True,read_only=True)
     primary_image = serializers.SerializerMethodField()
     all_images = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    # avg_rating = serializers.SerializerMethodField()
+    avg_rating = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    attributes = serializers.SerializerMethodField()
+
+
+    def get_attributes(self,instance):
+        product_attributes = ProductAttribute.objects.filter(product=instance)
+        if product_attributes:
+            attributes = []
+            for pa in product_attributes:
+                attributes.append({
+                    'attribute_name': pa.attribute.attribute_name,
+                    'attribute_value': pa.attribute_value.attribute_value
+                })
+            return attributes
+        return None
+
+
+
+    def get_is_liked(self,instance):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        all_likes = instance.users_like.all()
+        if user in all_likes:
+            return True
+        else:
+            return False
+
+
+    def get_avg_rating(self,obj):
+        avg_rating = Comment.objects.filter(product=obj).aggregate(avg_rating = Round(Avg('rating')))
+        if avg_rating.get('avg_rating'):
+            return avg_rating.get('avg_rating')
+        return 0
+
+    def get_comment_count(self,instance):
+        count = Comment.objects.filter(product = instance).count()
+        return count
+
+    # def get_avg_rating(self, instance):
+    #     comments = Comment.objects.filter(product = instance)
+    #     try:
+    #         avg_rating = round(sum([comment.rating for comment in comments]))
+    #     except ZeroDivisionError:
+    #         avg_rating = 0
+
+    #     return avg_rating
 
 
     def get_primary_image(self,instance):
@@ -202,4 +254,26 @@ class ProductModelSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Product
         fields = '__all__'
-        extra_fields = ['category_name','group_name','primary_image','all_images','comments']
+        extra_fields = ['category_name','group_name','primary_image','all_images','comments','is_liked','attributes']
+
+
+
+class UserRegister(serializers.ModelSerializer):
+    password2 = serializers.CharField(style={'input_type':'password'},write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username','password','email','password2']
+
+    def save(self):
+        reg = User(
+            email = self.validated_data['email'],
+            username = self.validate_data['username']
+
+        )
+        password = self.validate_data['password']
+        password2 = self.validate_data['password2']
+        if password != password2:
+            raise serializers.ValidationError['password':'password does not match']
+        reg.save()
+        return reg 
