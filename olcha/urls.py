@@ -4,6 +4,7 @@ from olcha import views
 from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('categories', views.CategoryModelViewSet,basename = 'category')
+router.register('products',views.ProductModelViewSet,basename='product')
 
 
 urlpatterns = [
@@ -19,8 +20,16 @@ urlpatterns = [
     path('category-delete-generic-api-view/<int:pk>/',views.CategoryDelete.as_view(),name = 'category-delete'),
     path('category-list-create-generic-api-view/',views.CategoryListCreate.as_view(),name = 'category-list-create'),
     path('category-update-generic-api-view/<int:pk>/',views.CategoryChange.as_view(),name = 'category-update'),
-    path('modelviewset/',include(router.urls))
+    path('modelviewset/',include(router.urls)),
+    # for product section
 
+    path('product-list-generic-api-view/',views.ProductList.as_view(),name = 'product-list'),
+    # path('product-detail-generic-api-view/<int:pk>/',views.ProductDetail.as_view(),name = 'product-list'),
+    path('product-add-generic-api-view/',views.ProductAdd.as_view(),name = 'product-add'),
+    path('product-delete-generic-api-view/<int:pk>/',views.ProductDelete.as_view(),name = 'product-delete'),
+    path('product-list-create-generic-api-view/',views.ProductListCreate.as_view(),name = 'product-list-create'),
+    path('product-update-generic-api-view/<int:pk>/',views.ProductChange.as_view(),name = 'product-update'),
+    path('modelviewset/',include(router.urls))
     
 
     #  3rd version                       xar bir categoriyani aloxida aloxida viewlarda chiqarish  

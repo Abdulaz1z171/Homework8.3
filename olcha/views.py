@@ -218,3 +218,37 @@ class CategoryChange(generics.UpdateAPIView):
 class CategoryModelViewSet(viewsets.ModelViewSet):
     serializer_class = CategoryModelSerializer
     queryset = Category.objects.all()
+
+#  For Product section
+
+class ProductList(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+
+
+class ProductAdd(generics.CreateAPIView):
+    
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+
+
+class ProductDelete(generics.DestroyAPIView):
+    
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+
+class ProductListCreate(generics.ListCreateAPIView):
+    
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+
+class ProductChange(generics.UpdateAPIView):
+    
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+
+
+class ProductModelViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
