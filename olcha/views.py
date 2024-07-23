@@ -1,12 +1,12 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
-from rest_framework import status
+from rest_framework import status,viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from olcha.models import Category,Group,Product,Comment
-from olcha.serializers import ProductModelSerializer,CommentModelSerializer,UserModelSerializer,UserRegister
+from olcha.serializers import ProductModelSerializer,CommentModelSerializer,UserModelSerializer,UserRegister,CategoryModelSerializer
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 
@@ -174,9 +174,47 @@ class ProductListView(APIView):
 
 
 
+class CategoryList(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+
+    
 
 
+class CategoryDetail(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+    lookup_field = 'pk'
+
+    # def get_queryset(self):
+    #     queryset = Category.objects.all()
+    #     return queryset
 
 
+class CategoryAdd(generics.CreateAPIView):
+    
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
 
 
+class CategoryDelete(generics.DestroyAPIView):
+    
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+
+class CategoryListCreate(generics.ListCreateAPIView):
+    
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+
+class CategoryChange(generics.UpdateAPIView):
+    
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+
+
+class CategoryModelViewSet(viewsets.ModelViewSet):
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()

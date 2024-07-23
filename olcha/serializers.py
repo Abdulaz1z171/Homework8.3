@@ -7,33 +7,35 @@ from olcha.models import Category,Group,Product,Image,Comment,ProductAttribute
 
 """ First version,API dagi category da hamma ma'lumotlar birdan ciqadi group va
  undagi product lar bn.Bunda faqat serializerda logika qilindi va malumotlarni bitta viewda ciqarildi """
+"""
+class ImageModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ['image']
 
-# class ImageModelSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Image
-#         fields = ['image']
-
-# class ProductModelSerializer(serializers.ModelSerializer):
-#     images = ImageModelSerializer(many = True,read_only=True)
+class ProductModelSerializer(serializers.ModelSerializer):
+    images = ImageModelSerializer(many = True,read_only=True)
     
-#     class Meta:
-#         model = Product
-#         fields = ['product_name','description','price','quantity','rating','discount','slug','images']
+    class Meta:
+        model = Product
+        fields = ['product_name','description','price','quantity','rating','discount','slug','images']
 
-# class GroupModelSerializer(serializers.ModelSerializer):
-#     images = ImageModelSerializer(many = True,read_only=True)
-#     products = ProductModelSerializer(many=True,read_only=True)
-#     class Meta:
-#         model = Group
-#         fields = ['group_name','slug','images','products']
+class GroupModelSerializer(serializers.ModelSerializer):
+    images = ImageModelSerializer(many = True,read_only=True)
+    products = ProductModelSerializer(many=True,read_only=True)
+    class Meta:
+        model = Group
+        fields = ['group_name','slug','images','products']
 
-# class CategoryModelSerializer(serializers.ModelSerializer):
-#     images = ImageModelSerializer(many = True,read_only=True)
-#     groups = GroupModelSerializer(many = True,read_only=True)
-#     class Meta:
-#         model = Category
-#         fields = ['id','category_name','images','groups']
+class CategoryModelSerializer(serializers.ModelSerializer):
+    images = ImageModelSerializer(many = True,read_only=True)
+    groups = GroupModelSerializer(many = True,read_only=True)
+    class Meta:
+        model = Category
+        fields = ['id','category_name','images','groups']
 
+
+"""
 
 """ 2nd version, malumotlarni serializer  funksiyalardan foydalanib  olish  va malumotlarni bitta viewda chiqarish uchun"""
 
@@ -118,7 +120,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
 """ 3rd version barcha malumotlarni aloxida aloxida chiqarish uchun aloxida serializerlardan foydanlanildi """
 
-"""
+
 class  ImageModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
@@ -126,34 +128,33 @@ class  ImageModelSerializer(serializers.ModelSerializer):
 
 
 class GroupModelSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.category_name')
-    category_slug = serializers.CharField(source='category.slug')
 
     images = ImageModelSerializer(many=True)
 
     class Meta:
         model = Group
-        fields = ['id','group_name','slug','images','category_name','category_slug']
+        fields = ['id','group_name','slug','images']
     
 
 class CategoryModelSerializer(serializers.ModelSerializer):
     images = ImageModelSerializer(many=True,read_only=True)
+    groups = GroupModelSerializer(many = True,read_only=True)
     class Meta:
         model = Category
-        fields = ['id','category_name','slug','images']
+        fields = ['id','category_name','slug','images','groups']
 
 
-class ProductModelSerializer(serializers.ModelSerializer):
-    images = ImageModelSerializer(many=True,read_only=True)
-    group_name = serializers.CharField(source='group.group_name')
-    group_slug = serializers.CharField(source='group.slug')
+# class ProductModelSerializer(serializers.ModelSerializer):
+#     images = ImageModelSerializer(many=True,read_only=True)
+#     group_name = serializers.CharField(source='group.group_name')
+#     group_slug = serializers.CharField(source='group.slug')
 
-    class Meta:
-        model = Product
-        fields = ['id','product_name','description','price','quantity','rating','discount','slug','group_name','group_slug','images']
+#     class Meta:
+#         model = Product
+#         fields = ['id','product_name','description','price','quantity','rating','discount','slug','group_name','group_slug','images']
 
 
-"""
+
 
 class UserModelSerializer(serializers.ModelSerializer):
     class Meta:
@@ -166,10 +167,10 @@ class CommentModelSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['username','message','file','product_name']
         # extra_fields = ['username']
-class  ImageModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-        fields = ['image']
+# class  ImageModelSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Image
+#         fields = ['image']
 
 class ProductModelSerializer(serializers.ModelSerializer):
     group_name = serializers.CharField(source='group.group_name')
@@ -184,18 +185,34 @@ class ProductModelSerializer(serializers.ModelSerializer):
     attributes = serializers.SerializerMethodField()
 
 
-    def get_attributes(self,instance):
-        product_attributes = ProductAttribute.objects.filter(product=instance)
-        if product_attributes:
-            attributes = []
-            for pa in product_attributes:
-                attributes.append({
-                    'attribute_name': pa.attribute.attribute_name,
-                    'attribute_value': pa.attribute_value.attribute_value
-                })
-            return attributes
-        return None
+    # def get_attributes(self,instance):
+    #     product_attributes = ProductAttribute.objects.filter(product=instance)
+    #     if product_attributes:
+    #         attributes = []
+    #         for pa in product_attributes:
+    #             attributes.append({
+    #                 'attribute_id': pa.attribute.id,
+    #                 'attribute_name': pa.attribute.attribute_name,
+    #                 'attribute_value_id': pa.attribute_value.id,
+    #                 'attribute_value': pa.attribute_value.attribute_value
+    #             })
+    #         return attributes
+    #     return None
 
+
+    def get_attributes(self,instance):
+        attributes = ProductAttribute.objects.filter(product=instance).values_list('attribute_id','attribute__attribute_name','attribute_value_id','attribute_value__attribute_value')
+        characters = [
+            {'attrbute_id':key_id,
+            'attribute_name': key_name,
+            'attribute_value_id':value_id,
+            'attribute_value': value_name
+
+            }
+            for key_id,key_name,value_id,value_name in attributes
+
+        ]
+        return characters
 
 
     def get_is_liked(self,instance):
@@ -277,3 +294,5 @@ class UserRegister(serializers.ModelSerializer):
             raise serializers.ValidationError['password':'password does not match']
         reg.save()
         return reg 
+
+
