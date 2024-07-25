@@ -2,11 +2,12 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework import status,viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import BaseAuthentication,SessionAuthentication,TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from olcha.models import Category,Group,Product,Comment
-from olcha.serializers import ProductModelSerializer,CommentModelSerializer,UserModelSerializer,UserRegister,CategoryModelSerializer
+from olcha.serializers import ProductModelSerializer,CommentModelSerializer,CategoryModelSerializer
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 
@@ -176,6 +177,7 @@ class ProductListView(APIView):
 
 class CategoryList(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     serializer_class = CategoryModelSerializer
     queryset = Category.objects.all()
 

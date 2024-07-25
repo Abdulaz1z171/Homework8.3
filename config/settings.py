@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'olcha',
     'rest_framework',
+    'rest_framework.authtoken'
+    
 ]
 
 MIDDLEWARE = [
@@ -117,9 +119,15 @@ USE_TZ = True
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny'
-    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication'
+
+    ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.AllowAny',
+#     ]
 }
 
 
@@ -136,3 +144,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'abdulazizaliyev00171@gmail.com'
+EMAIL_HOST_PASSWORD = 'fezl enqe aige hdss'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
